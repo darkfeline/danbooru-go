@@ -51,14 +51,13 @@ func getResponseError(r *http.Response, rb responseBody) error {
 	}
 	return responseError{
 		StatusCode: r.StatusCode,
-		body:       &rb,
+		body:       rb,
 	}
 }
 
 type responseError struct {
 	StatusCode int
-	// BUG(): https://github.com/golang/go/issues/31841
-	body *responseBody
+	body       responseBody
 }
 
 var _ error = responseError{}
