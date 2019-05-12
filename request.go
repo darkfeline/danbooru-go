@@ -72,6 +72,9 @@ func newJSONBody(v interface{}) jsonBody {
 	return jsonBody{bytes.NewReader(d)}
 }
 
+// A PostID is the ID of a post.
+type PostID int
+
 func newPostIDBody(id PostID) jsonBody {
 	type body struct {
 		PostID PostID `json:"post_id"`
