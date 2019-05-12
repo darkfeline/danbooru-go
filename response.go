@@ -71,7 +71,11 @@ func getResponseError(r *http.Response, rb responseBody) error {
 }
 
 func (e responseError) Error() string {
-	return fmt.Sprintf("HTTP %d %s", e.StatusCode, http.StatusText(e.StatusCode))
+	s := fmt.Sprintf("HTTP %d %s", e.StatusCode, http.StatusText(e.StatusCode))
+	if m := e.body.Message; m != "" {
+		s = s + ": " + m
+	}
+	return s
 }
 
 func (e responseError) Is(target error) bool {
@@ -87,7 +91,7 @@ func (e responseError) Format(f fmt.State, c rune) {
 }
 
 func (e responseError) FormatError(p xerrors.Printer) error {
-	p.Print(e.Error())
+	p.Printf("HTTP %d %s", e.StatusCode, http.StatusText(e.StatusCode))
 	if !p.Detail() {
 		return nil
 	}
