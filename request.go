@@ -23,6 +23,10 @@ import (
 	"net/url"
 )
 
+// newRequest creates an HTTP request for an API call with the client.
+// The request is authenticated with the client auth info if set.  If
+// the body implements contentTyper, the contentTyper interface is
+// used to set the Content-Type header.
 func (c *Client) newRequest(ctx context.Context, method, path string, body io.Reader) *http.Request {
 	u := url.URL{
 		Scheme: "https",
@@ -43,10 +47,13 @@ func (c *Client) newRequest(ctx context.Context, method, path string, body io.Re
 	return r
 }
 
+// contentTyper is the interface for getting the Content-Type to use
+// for an HTTP request body.
 type contentTyper interface {
 	ContentType() string
 }
 
+// jsonBody wraps a Reader with application/json content type.
 type jsonBody struct {
 	io.Reader
 }
