@@ -42,12 +42,14 @@ type Logger interface {
 	Printf(string, ...interface{})
 }
 
+// log prints log messages using the client's logger.
 func (c *Client) log(v ...interface{}) {
 	if c.Logger != nil {
 		c.Logger.Print(v...)
 	}
 }
 
+// logf prints log messages using the client's logger.
 func (c *Client) logf(format string, v ...interface{}) {
 	if c.Logger != nil {
 		c.Logger.Printf(format, v...)
