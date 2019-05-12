@@ -62,16 +62,6 @@ Want:
 		want := `HTTP 429 Too Many Requests`
 		assert(t, got, want)
 	})
-	t.Run("detail format", func(t *testing.T) {
-		t.Parallel()
-		err := responseError{
-			StatusCode: 429,
-		}
-		got := fmt.Sprintf("%+v", err)
-		want := `HTTP 429 Too Many Requests:
-    {Success:false Message: Backtrace:[]}`
-		assert(t, got, want)
-	})
 	t.Run("detail format with body", func(t *testing.T) {
 		t.Parallel()
 		err := responseError{
