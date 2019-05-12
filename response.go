@@ -23,12 +23,15 @@ import (
 	"golang.org/x/xerrors"
 )
 
+// responseBody represents an API response.
 type responseBody struct {
 	Success   bool     `json:"success"`
 	Message   string   `json:"message"`
 	Backtrace []string `json:"backtrace"`
 }
 
+// parseBody parses the HTTP response of an API call.  This function
+// only supports JSON responses.
 func parseBody(r io.Reader) (responseBody, error) {
 	d := json.NewDecoder(r)
 	var rb responseBody
@@ -42,6 +45,18 @@ func parseBody(r io.Reader) (responseBody, error) {
 // errors.Is to compare.
 var ErrThrottled = responseError{StatusCode: 429}
 
+// responseError represents an error API response.
+type responseError struct {
+	StatusCode int
+	body       responseBody
+}
+
+var _ error = responseError{}
+var _ fmt.Formatter = responseError{}
+var _ xerrors.Formatter = responseError{}
+
+// getResponseError returns the error for the API HTTP response.  If
+// the response is not an error, return nil.
 func getResponseError(r *http.Response, rb responseBody) error {
 	if r.StatusCode < 400 {
 		return nil
@@ -54,15 +69,6 @@ func getResponseError(r *http.Response, rb responseBody) error {
 		body:       rb,
 	}
 }
-
-type responseError struct {
-	StatusCode int
-	body       responseBody
-}
-
-var _ error = responseError{}
-var _ fmt.Formatter = responseError{}
-var _ xerrors.Formatter = responseError{}
 
 func (e responseError) Error() string {
 	return fmt.Sprintf("HTTP %d %s", e.StatusCode, http.StatusText(e.StatusCode))
