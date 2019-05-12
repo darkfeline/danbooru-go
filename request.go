@@ -62,6 +62,16 @@ func (jsonBody) ContentType() string {
 	return "application/json"
 }
 
+// newJSONBody returns an encoded jsonBody for the given value.  If
+// the value cannot be marshaled, panic.
+func newJSONBody(v interface{}) jsonBody {
+	d, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return jsonBody{bytes.NewReader(d)}
+}
+
 func newPostIDBody(id PostID) jsonBody {
 	type body struct {
 		PostID PostID `json:"post_id"`
@@ -69,9 +79,5 @@ func newPostIDBody(id PostID) jsonBody {
 	b := body{
 		PostID: id,
 	}
-	d, err := json.Marshal(&b)
-	if err != nil {
-		panic(err)
-	}
-	return jsonBody{bytes.NewReader(d)}
+	return newJSONBody(&b)
 }
