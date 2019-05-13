@@ -24,7 +24,8 @@ type Client struct {
 	Host string
 	// AuthInfo is used for authentication if set.
 	AuthInfo AuthInfo
-	// HTTPClient is the HTTP client used for requests.
+	// HTTPClient is the HTTP client used for requests.  The zero
+	// value is suitable for use.
 	HTTPClient http.Client
 	// Logger is used for diagnostic logging if set.
 	Logger Logger

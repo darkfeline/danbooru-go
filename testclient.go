@@ -21,6 +21,10 @@ import (
 	"golang.org/x/xerrors"
 )
 
+// testClient returns a client to use for tests.  It uses a fake host
+// and auth info.  The HTTP client transport is stubbed out and needs
+// to be configured for tests.  The client writes logs to the test
+// error log.
 func testClient(t *testing.T) *Client {
 	return &Client{
 		Host: "api.example.com",
