@@ -16,6 +16,7 @@ package danbooru
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -43,7 +44,7 @@ func parseBody(r io.Reader) (responseBody, error) {
 
 // ErrThrottled is returned when an API call is throttled.  Use
 // errors.Is to compare.
-var ErrThrottled = responseError{StatusCode: 429}
+var ErrThrottled = errors.New("throttled")
 
 // responseError represents an error API response.
 type responseError struct {
@@ -79,11 +80,12 @@ func (e responseError) Error() string {
 }
 
 func (e responseError) Is(target error) bool {
-	e2, ok := target.(responseError)
-	if !ok {
+	switch target {
+	case ErrThrottled:
+		return e.StatusCode == 429
+	default:
 		return false
 	}
-	return e.StatusCode == e2.StatusCode
 }
 
 func (e responseError) Format(f fmt.State, c rune) {
