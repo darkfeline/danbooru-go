@@ -21,9 +21,53 @@ import (
 	"golang.org/x/xerrors"
 )
 
-func TestResponseError(t *testing.T) {
+func TestResponseError_Error(t *testing.T) {
 	t.Parallel()
-	t.Run("is ErrThrottled", func(t *testing.T) {
+	assert := func(t *testing.T, got, want string) {
+		if got != want {
+			t.Errorf("Error() = %#v; want %#v", got, want)
+		}
+	}
+	t.Run("no message", func(t *testing.T) {
+		t.Parallel()
+		err := responseError{
+			StatusCode: 500,
+		}
+		got := err.Error()
+		want := `HTTP 500 Internal Server Error`
+		assert(t, got, want)
+	})
+	t.Run("message", func(t *testing.T) {
+		t.Parallel()
+		err := responseError{
+			StatusCode: 500,
+			body: responseBody{
+				Message: "blah",
+			},
+		}
+		got := err.Error()
+		want := `HTTP 500 Internal Server Error: blah`
+		assert(t, got, want)
+	})
+	t.Run("wrapped with message", func(t *testing.T) {
+		t.Parallel()
+		var err error
+		err = responseError{
+			StatusCode: 500,
+			body: responseBody{
+				Message: "blah",
+			},
+		}
+		err = xerrors.Errorf("add favorite %d: %w", 123, err)
+		got := err.Error()
+		want := `add favorite 123: HTTP 500 Internal Server Error: blah`
+		assert(t, got, want)
+	})
+}
+
+func TestResponseError_Is(t *testing.T) {
+	t.Parallel()
+	t.Run("ErrThrottled", func(t *testing.T) {
 		t.Parallel()
 		err := responseError{
 			StatusCode: 429,
@@ -36,12 +80,10 @@ func TestResponseError(t *testing.T) {
 			t.Errorf("%#v should be ErrThrottled", err)
 		}
 	})
-	t.Run("formatting", func(t *testing.T) {
-		testResponseErrorFormatting(t)
-	})
 }
 
-func testResponseErrorFormatting(t *testing.T) {
+func TestResponseError_FormatError(t *testing.T) {
+	t.Parallel()
 	assert := func(t *testing.T, got, want string) {
 		t.Helper()
 		if got != want {
@@ -62,6 +104,19 @@ Want:
 		want := `HTTP 429 Too Many Requests`
 		assert(t, got, want)
 	})
+	t.Run("string format with message", func(t *testing.T) {
+		t.Parallel()
+		err := responseError{
+			StatusCode: 429,
+			body: responseBody{
+				Success: false,
+				Message: "throttled",
+			},
+		}
+		got := fmt.Sprintf("%v", err)
+		want := `HTTP 429 Too Many Requests: throttled`
+		assert(t, got, want)
+	})
 	t.Run("detail format with body", func(t *testing.T) {
 		t.Parallel()
 		err := responseError{
@@ -72,7 +127,7 @@ Want:
 			},
 		}
 		got := fmt.Sprintf("%+v", err)
-		want := `HTTP 429 Too Many Requests:
+		want := `HTTP 429 Too Many Requests: throttled:
     {Success:false Message:throttled Backtrace:[]}`
 		assert(t, got, want)
 	})

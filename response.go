@@ -91,7 +91,7 @@ func (e responseError) Format(f fmt.State, c rune) {
 }
 
 func (e responseError) FormatError(p xerrors.Printer) error {
-	p.Printf("HTTP %d %s", e.StatusCode, http.StatusText(e.StatusCode))
+	p.Printf(e.Error())
 	if !p.Detail() {
 		return nil
 	}
