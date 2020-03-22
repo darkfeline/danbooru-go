@@ -18,7 +18,7 @@ import (
 	"net/http"
 )
 
-// Client represent a Danbooru API client.
+// A Client is a Danbooru API Client.
 type Client struct {
 	// Host is the Danbooru instance hostname, e.g., danbooru.donmai.us.
 	Host string
@@ -31,7 +31,7 @@ type Client struct {
 	Logger Logger
 }
 
-// AuthInfo contains authentication info for API requests.
+// An AuthInfo contains authentication info for API requests.
 type AuthInfo struct {
 	Login  string
 	APIKey string
