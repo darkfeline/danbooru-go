@@ -39,15 +39,7 @@ type AuthInfo struct {
 
 // Logger describes the interface that Client uses for logging.
 type Logger interface {
-	Print(...interface{})
 	Printf(string, ...interface{})
-}
-
-// log prints log messages using the client's logger.
-func (c *Client) log(v ...interface{}) {
-	if c.Logger != nil {
-		c.Logger.Print(v...)
-	}
 }
 
 // logf prints log messages using the client's logger.
