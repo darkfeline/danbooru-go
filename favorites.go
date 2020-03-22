@@ -16,8 +16,7 @@ package danbooru
 
 import (
 	"context"
-
-	"golang.org/x/xerrors"
+	"fmt"
 )
 
 // AddFavorite adds a post to the user's favorites.
@@ -26,16 +25,16 @@ func (c *Client) AddFavorite(ctx context.Context, id PostID) error {
 	c.logf("%s %s", r.Method, r.URL.String())
 	resp, err := c.HTTPClient.Do(r)
 	if err != nil {
-		return xerrors.Errorf("add favorite %d: %w", id, err)
+		return fmt.Errorf("add favorite %d: %w", id, err)
 	}
 	defer resp.Body.Close()
 	rb, err := parseBody(resp.Body)
 	if err != nil {
-		return xerrors.Errorf("add favorite %d: %w", id, err)
+		return fmt.Errorf("add favorite %d: %w", id, err)
 	}
 	c.logf("%s %s %+v", r.Method, r.URL.String(), rb)
 	if err := getResponseError(resp, rb); err != nil {
-		return xerrors.Errorf("add favorite %d: %w", id, err)
+		return fmt.Errorf("add favorite %d: %w", id, err)
 	}
 	return nil
 }

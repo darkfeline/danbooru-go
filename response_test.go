@@ -15,10 +15,9 @@
 package danbooru
 
 import (
+	"errors"
 	"fmt"
 	"testing"
-
-	"golang.org/x/xerrors"
 )
 
 func TestResponseError_Error(t *testing.T) {
@@ -58,7 +57,7 @@ func TestResponseError_Error(t *testing.T) {
 				Message: "blah",
 			},
 		}
-		err = xerrors.Errorf("add favorite %d: %w", 123, err)
+		err = fmt.Errorf("add favorite %d: %w", 123, err)
 		got := err.Error()
 		want := `add favorite 123: HTTP 500 Internal Server Error: blah`
 		assert(t, got, want)
@@ -76,7 +75,7 @@ func TestResponseError_Is(t *testing.T) {
 				Message: "throttled",
 			},
 		}
-		if !xerrors.Is(err, ErrThrottled) {
+		if !errors.Is(err, ErrThrottled) {
 			t.Errorf("%#v should be ErrThrottled", err)
 		}
 	})
@@ -115,20 +114,6 @@ Want:
 		}
 		got := fmt.Sprintf("%v", err)
 		want := `HTTP 429 Too Many Requests: throttled`
-		assert(t, got, want)
-	})
-	t.Run("detail format with body", func(t *testing.T) {
-		t.Parallel()
-		err := responseError{
-			StatusCode: 429,
-			body: responseBody{
-				Success: false,
-				Message: "throttled",
-			},
-		}
-		got := fmt.Sprintf("%+v", err)
-		want := `HTTP 429 Too Many Requests: throttled:
-    {Success:false Message:throttled Backtrace:[]}`
 		assert(t, got, want)
 	})
 }

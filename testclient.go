@@ -15,10 +15,9 @@
 package danbooru
 
 import (
+	"errors"
 	"net/http"
 	"testing"
-
-	"golang.org/x/xerrors"
 )
 
 // testClient returns a client to use for tests.  It uses a fake host
@@ -34,7 +33,7 @@ func testClient(t *testing.T) *Client {
 		},
 		HTTPClient: http.Client{
 			Transport: &transportStub{
-				err: xerrors.New("not implemented"),
+				err: errors.New("not implemented"),
 			},
 		},
 		Logger: testLogger{t},

@@ -20,8 +20,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-
-	"golang.org/x/xerrors"
 )
 
 // responseBody represents an API response.
@@ -37,7 +35,7 @@ func parseBody(r io.Reader) (responseBody, error) {
 	d := json.NewDecoder(r)
 	var rb responseBody
 	if err := d.Decode(&rb); err != nil {
-		return rb, xerrors.Errorf("parse body: %w", err)
+		return rb, fmt.Errorf("parse body: %w", err)
 	}
 	return rb, nil
 }
@@ -53,8 +51,6 @@ type responseError struct {
 }
 
 var _ error = responseError{}
-var _ fmt.Formatter = responseError{}
-var _ xerrors.Formatter = responseError{}
 
 // getResponseError returns the error for the API HTTP response.  If
 // the response is not an error, return nil.
@@ -86,17 +82,4 @@ func (e responseError) Is(target error) bool {
 	default:
 		return false
 	}
-}
-
-func (e responseError) Format(f fmt.State, c rune) {
-	xerrors.FormatError(e, f, c)
-}
-
-func (e responseError) FormatError(p xerrors.Printer) error {
-	p.Printf(e.Error())
-	if !p.Detail() {
-		return nil
-	}
-	p.Printf("%+v", e.body)
-	return nil
 }
